@@ -1,0 +1,5 @@
+{
+  "name": "Charm Thai Reservations",
+  "description": "A modern, single-page reservation management application for a restaurant. It features a calendar, a timeline view of bookings, and a list view, all designed with a minimalist and high-end aesthetic.",
+  "requestFramePermissions": []
+}
