@@ -17,23 +17,7 @@ const ListView: React.FC<ListViewProps> = ({ reservations, onSelectReservation }
   }
 
   const sortedReservations = [...reservations].sort((a, b) => {
-    const aIsUnassigned = a.tableId === UNASSIGNED_TABLE.id;
-    const bIsUnassigned = b.tableId === UNASSIGNED_TABLE.id;
-
-    if (aIsUnassigned && !bIsUnassigned) {
-      return -1; // a comes first
-    }
-    if (!aIsUnassigned && bIsUnassigned) {
-      return 1; // b comes first
-    }
-
-    // If both are unassigned or both are assigned, sort by time
-    const timeCompare = a.time.localeCompare(b.time);
-    if (timeCompare !== 0) {
-      return timeCompare;
-    }
-    // If times are the same, sort by table ID for consistency
-    return a.tableId - b.tableId;
+    return a.time.localeCompare(b.time) || a.tableId - b.tableId;
   });
 
   return (
