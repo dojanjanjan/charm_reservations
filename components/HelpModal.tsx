@@ -10,8 +10,8 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-[100] flex justify-center items-center p-4 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl w-full max-w-2xl relative animate-fade-in-up flex flex-col max-h-[90vh] shadow-2xl">
+    <div className="fixed inset-0 bg-black/50 z-[100] flex justify-center items-start sm:items-center p-2 sm:p-4 backdrop-blur-sm overflow-y-auto pt-10 sm:pt-4">
+      <div className="bg-white rounded-2xl w-full max-w-2xl relative animate-fade-in-up flex flex-col my-auto shadow-2xl overflow-hidden max-h-[calc(100vh-80px)]">
         <div className="flex items-center justify-between p-5 border-b border-gray-100 flex-shrink-0">
           <h3 className="text-xl font-bold text-[var(--color-primary)]">Help & Instructions</h3>
           <button onClick={onClose} className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-800 transition-colors">
