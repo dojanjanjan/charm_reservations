@@ -36,17 +36,20 @@ const ListView: React.FC<ListViewProps> = ({ reservations, onSelectReservation }
                 </div>
                 <div className="min-w-0 flex-1">
                     <h3 className="font-bold text-gray-800 text-lg truncate">{res.guestName}</h3>
-                    <div className="text-sm text-gray-500 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
+                    <div className="text-sm text-gray-500 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <span className="flex items-center gap-1.5 font-medium text-gray-700">
+                          <Users size={14} className="text-gray-400"/> {res.pax} {res.pax > 1 ? t.guests : t.guest}
+                        </span>
+                        <span className="text-gray-300 hidden xs:inline">•</span>
                         {table && table.id !== UNASSIGNED_TABLE.id ? (
                            <span className={`flex items-center gap-1.5 font-medium ${table.area === 'Indoor' ? 'text-[var(--color-primary)]' : 'text-[var(--color-accent)]'}`}>
                               <MapPin size={14}/> {table.name} ({table.area === 'Indoor' ? t.indoor : t.outdoor})
                            </span>
                         ) : (
-                          <span className="flex items-center gap-1.5 font-medium text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md">
+                          <span className="flex items-center gap-1.5 font-medium text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md text-xs">
                             <MapPin size={14}/> {t.unassigned}
                           </span>
                         )}
-                        <span className="flex items-center gap-1.5"><Users size={14}/> {res.pax} {res.pax > 1 ? t.guests : t.guest}</span>
                     </div>
                     {/* Mobile Comment */}
                     {res.comments && (
