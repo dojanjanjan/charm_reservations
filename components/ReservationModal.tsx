@@ -3,6 +3,7 @@ import { Reservation } from '../types';
 import { useReservations } from '../hooks/useReservations';
 import { INDOOR_TABLES, OUTDOOR_TABLES, OPENING_HOURS, TIME_SLOT_MINUTES, RESERVATION_DURATION_MINUTES, UNASSIGNED_TABLE } from '../constants';
 import { X, Trash2 } from './Icons';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface ReservationModalProps {
   isOpen: boolean;
