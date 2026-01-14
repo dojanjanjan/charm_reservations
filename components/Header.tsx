@@ -6,7 +6,8 @@ const Header: React.FC = () => {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   return (
-    <header className="p-2 sm:p-4 glass-pane sticky top-0 z-40">
+    <>
+      <header className="p-2 sm:p-4 glass-pane sticky top-0 z-40">
       <div className="max-w-8xl mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-2 sm:space-x-3">
           <div className="p-1.5 sm:p-2 bg-black/10 rounded-full">
@@ -25,8 +26,9 @@ const Header: React.FC = () => {
           </button>
         </div>
       </div>
+      </header>
       <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
-    </header>
+    </>
   );
 };
 
