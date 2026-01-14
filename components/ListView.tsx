@@ -29,13 +29,13 @@ const ListView: React.FC<ListViewProps> = ({ reservations, onSelectReservation }
 
         return (
           <div key={res.id} className="glass-pane p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-shadow hover:shadow-lg">
-            <div className="flex-1 flex items-center gap-4">
-               <div className="flex flex-col items-center justify-center bg-black/5 p-3 rounded-lg w-20">
+            <div className="flex-1 flex items-center gap-4 min-w-0 w-full sm:w-auto">
+               <div className="flex flex-col items-center justify-center bg-black/5 p-3 rounded-lg w-20 flex-shrink-0">
                     <span className="font-bold text-2xl text-[var(--color-primary)]">{res.time.split(':')[0]}</span>
                     <span className="text-sm text-gray-500">:{res.time.split(':')[1]}</span>
                 </div>
-                <div>
-                    <h3 className="font-bold text-gray-800 text-lg">{res.guestName}</h3>
+                <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-gray-800 text-lg truncate">{res.guestName}</h3>
                     <div className="text-sm text-gray-500 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
                         {table && table.id !== UNASSIGNED_TABLE.id ? (
                            <span className={`flex items-center gap-1.5 font-medium ${table.area === 'Indoor' ? 'text-[var(--color-primary)]' : 'text-[var(--color-accent)]'}`}>
@@ -48,17 +48,27 @@ const ListView: React.FC<ListViewProps> = ({ reservations, onSelectReservation }
                         )}
                         <span className="flex items-center gap-1.5"><Users size={14}/> {res.pax} {res.pax > 1 ? t.guests : t.guest}</span>
                     </div>
+                    {/* Mobile Comment */}
                     {res.comments && (
-                      <div className="mt-2 text-sm text-gray-600 italic flex items-start gap-1.5 bg-black/5 p-2 rounded-md border-l-2 border-gray-300">
+                      <div className="mt-2 sm:hidden text-sm text-gray-600 italic flex items-start gap-1.5 bg-black/5 p-2 rounded-md border-l-2 border-gray-300">
                         <MessageSquare size={14} className="mt-0.5 flex-shrink-0 text-gray-400" />
                         <span className="line-clamp-2">{res.comments}</span>
                       </div>
                     )}
                 </div>
             </div>
+
+            {/* Desktop Comment */}
+            {res.comments && (
+              <div className="hidden sm:flex flex-[2] items-start gap-2 bg-black/5 p-3 rounded-lg border-l-2 border-gray-300 mx-4 min-w-0">
+                <MessageSquare size={16} className="mt-0.5 flex-shrink-0 text-gray-400" />
+                <p className="text-sm text-gray-600 italic line-clamp-3">{res.comments}</p>
+              </div>
+            )}
+
             <button
               onClick={() => onSelectReservation(res)}
-              className="flex items-center gap-2 self-end sm:self-center px-4 py-2 text-sm font-medium text-gray-700 bg-white/80 border border-gray-300/80 rounded-lg shadow-sm hover:bg-white transition-all focus:ring-2 focus:ring-offset-1 focus:ring-[var(--color-accent)]"
+              className="flex items-center gap-2 self-end sm:self-center px-4 py-2 text-sm font-medium text-gray-700 bg-white/80 border border-gray-300/80 rounded-lg shadow-sm hover:bg-white transition-all flex-shrink-0 focus:ring-2 focus:ring-offset-1 focus:ring-[var(--color-accent)]"
             >
               <Edit size={14} />
               {t.details}
