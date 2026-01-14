@@ -26,7 +26,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
               <div>
                 <h5 className="font-bold text-gray-800">Creating a Reservation</h5>
                 <ul className="list-disc list-inside text-gray-600 text-sm space-y-1 ml-2">
-                  <li>Click on any empty time slot in the calendar or timeline view</li>
+                  <li>Click on any day in the calendar</li>
                   <li>Fill in guest name, number of people, and contact phone</li>
                   <li>Select the table area (Indoor or Outdoor) and specific table</li>
                   <li>Add any special notes if needed</li>
@@ -56,8 +56,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                 <h5 className="font-bold text-gray-800">View Options</h5>
                 <ul className="list-disc list-inside text-gray-600 text-sm space-y-1 ml-2">
                   <li>Calendar: See all reservations organized by date</li>
-                  <li>Timeline: View reservations in a time-based grid</li>
-                  <li>List: Browse all reservations in a simple list format</li>
+                  <li>List: Browse all reservations for the selected day in a simple list format</li>
                   <li>7 Days: View all reservations for the next week grouped by date</li>
                 </ul>
               </div>
@@ -91,7 +90,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
               <div>
                 <h5 className="font-bold text-gray-800">การสร้างการจอง</h5>
                 <ul className="list-disc list-inside text-gray-600 text-sm space-y-1 ml-2">
-                  <li>คลิกที่ช่องเวลาว่างในมุมมองปฏิทินหรือไทม์ไลน์</li>
+                  <li>คลิกที่วันที่ในปฏิทิน</li>
                   <li>กรอกชื่อแขก จำนวนคน และเบอร์โทรติดต่อ</li>
                   <li>เลือกพื้นที่โต๊ะ (ในร้านหรือนอกร้าน) และโต๊ะที่ต้องการ</li>
                   <li>เพิ่มหมายเหตุพิเศษหากต้องการ</li>
@@ -121,8 +120,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                 <h5 className="font-bold text-gray-800">ตัวเลือกการแสดงผล</h5>
                 <ul className="list-disc list-inside text-gray-600 text-sm space-y-1 ml-2">
                   <li>ปฏิทิน: ดูการจองทั้งหมดจัดเรียงตามวันที่</li>
-                  <li>ไทม์ไลน์: ดูการจองในรูปแบบตารางเวลา</li>
-                  <li>รายการ: เรียกดูการจองทั้งหมดในรูปแบบรายการง่ายๆ</li>
+                  <li>รายการ: เรียกดูการจองทั้งหมดสำหรับวันที่เลือกในรูปแบบรายการ</li>
                   <li>7 วัน: ดูการจองทั้งหมดสำหรับสัปดาห์หน้าจัดกลุ่มตามวันที่</li>
                 </ul>
               </div>
