@@ -51,22 +51,6 @@ const PinLockScreen: React.FC<PinLockScreenProps> = ({ onSuccess }) => {
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[var(--color-accent)]/10 rounded-full blur-[100px] animate-pulse"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[var(--color-primary)]/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }}></div>
 
-      <div className="flex bg-white/30 backdrop-blur-md p-1 rounded-xl mb-12 shadow-lg border border-white/40 z-10">
-        {(['en', 'de', 'th'] as Language[]).map((lang) => (
-          <button
-            key={lang}
-            onClick={() => setLanguage(lang)}
-            className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-300 ${
-              language === lang 
-                ? 'bg-[var(--color-primary)] text-white shadow-md transform scale-105' 
-                : 'text-[var(--color-primary)] hover:bg-white/40'
-            }`}
-          >
-            {lang.toUpperCase()}
-          </button>
-        ))}
-      </div>
-
       <div className="w-full max-w-sm glass-card-3d p-10 rounded-[2.5rem] animate-fade-in-up z-10">
         <div className="text-center mb-10">
           <div className="relative inline-block mb-6">
@@ -119,6 +103,22 @@ const PinLockScreen: React.FC<PinLockScreenProps> = ({ onSuccess }) => {
             );
           })}
         </div>
+      </div>
+
+      <div className="flex bg-white/30 backdrop-blur-md p-1 rounded-xl mt-10 shadow-lg border border-white/40 z-10 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+        {(['en', 'de', 'th'] as Language[]).map((lang) => (
+          <button
+            key={lang}
+            onClick={() => setLanguage(lang)}
+            className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-300 ${
+              language === lang 
+                ? 'bg-[var(--color-primary)] text-white shadow-md transform scale-105' 
+                : 'text-[var(--color-primary)] hover:bg-white/40'
+            }`}
+          >
+            {lang.toUpperCase()}
+          </button>
+        ))}
       </div>
 
       <div className="mt-8 text-gray-400 text-xs font-medium tracking-widest uppercase opacity-50 z-10">
