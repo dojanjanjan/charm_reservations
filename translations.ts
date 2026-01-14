@@ -214,3 +214,4 @@ export const translations = {
 
 export type Language = 'en' | 'de' | 'th';
 
+

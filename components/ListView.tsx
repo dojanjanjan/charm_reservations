@@ -2,7 +2,7 @@
 import React from 'react';
 import { Reservation } from '../types';
 import { ALL_TABLES, UNASSIGNED_TABLE } from '../constants';
-import { Edit, Users, Clock, MapPin } from './Icons';
+import { Edit, Users, Clock, MapPin, MessageSquare } from './Icons';
 import { useLanguage } from '../hooks/useLanguage';
 
 interface ListViewProps {
@@ -48,6 +48,12 @@ const ListView: React.FC<ListViewProps> = ({ reservations, onSelectReservation }
                         )}
                         <span className="flex items-center gap-1.5"><Users size={14}/> {res.pax} {res.pax > 1 ? t.guests : t.guest}</span>
                     </div>
+                    {res.comments && (
+                      <div className="mt-2 text-sm text-gray-600 italic flex items-start gap-1.5 bg-black/5 p-2 rounded-md border-l-2 border-gray-300">
+                        <MessageSquare size={14} className="mt-0.5 flex-shrink-0 text-gray-400" />
+                        <span className="line-clamp-2">{res.comments}</span>
+                      </div>
+                    )}
                 </div>
             </div>
             <button
