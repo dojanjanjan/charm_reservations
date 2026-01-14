@@ -5,7 +5,7 @@ interface PinLockScreenProps {
   onSuccess: () => void;
 }
 
-const CORRECT_PIN = '1723';
+const CORRECT_PIN = '0409';
 
 const PinLockScreen: React.FC<PinLockScreenProps> = ({ onSuccess }) => {
   const [pin, setPin] = useState('');
@@ -45,7 +45,12 @@ const PinLockScreen: React.FC<PinLockScreenProps> = ({ onSuccess }) => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-xs glass-pane p-8 rounded-2xl animate-fade-in-up">
-        <div className="text-center">
+        <div className="text-center mb-6">
+          <img 
+            src="/charm_logo_positiv.png" 
+            alt="Charm Thai Logo" 
+            className="w-32 mx-auto mb-4"
+          />
           <h1 className="text-2xl font-bold text-[var(--color-primary)]">Enter PIN</h1>
           <p className="text-gray-500 mt-1 text-sm">Enter the PIN to access the reservation book.</p>
         </div>
