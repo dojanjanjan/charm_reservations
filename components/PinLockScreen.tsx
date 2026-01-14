@@ -51,7 +51,6 @@ const PinLockScreen: React.FC<PinLockScreenProps> = ({ onSuccess }) => {
             alt="Charm Thai Logo" 
             className="w-32 mx-auto mb-4"
           />
-          <h1 className="text-2xl font-bold text-[var(--color-primary)]">Enter PIN</h1>
           <p className="text-gray-500 mt-1 text-sm">Enter the PIN to access the reservation book.</p>
         </div>
         

@@ -199,6 +199,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
                     id="date" 
                     value={formatDate(formDate)} 
                     min={formatDate(new Date())}
+                    lang="de-DE"
                     onChange={e => {
                       const newDate = new Date(e.target.value + 'T00:00:00');
                       setFormDate(newDate);

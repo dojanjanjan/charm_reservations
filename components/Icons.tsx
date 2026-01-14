@@ -18,4 +18,5 @@ export {
   Info,
   Sparkles,
   Delete,
+  HelpCircle,
 } from 'lucide-react';

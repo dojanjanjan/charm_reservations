@@ -49,7 +49,7 @@ const ReservationView: React.FC<ReservationViewProps> = ({ selectedDate }) => {
     setIsModalOpen(true);
   };
 
-  const dateHeader = selectedDate.toLocaleDateString('en-US', {
+  const dateHeader = selectedDate.toLocaleDateString('de-DE', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
