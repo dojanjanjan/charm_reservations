@@ -20,4 +20,8 @@ export {
   Delete,
   HelpCircle,
   MessageSquare,
+  BarChart2,
+  PieChart,
+  TrendingUp,
+  ArrowLeft,
 } from 'lucide-react';

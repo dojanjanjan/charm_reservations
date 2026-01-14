@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
-import { Calendar, HelpCircle, Sun, MapPin } from './Icons';
+import { Calendar, HelpCircle, Sun, MapPin, BarChart2 } from './Icons';
 import HelpModal from './HelpModal';
 import { useLanguage } from '../hooks/useLanguage';
 import { Language } from '../translations';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  currentView: 'book' | 'stats';
+  onViewChange: (view: 'book' | 'stats') => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
 
@@ -21,6 +26,19 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-2 sm:space-x-4">
             <div className="hidden lg:block text-sm font-medium tracking-wider text-[var(--color-primary)] text-shadow-sm">{t.digitalBook}</div>
             
+            <button
+              onClick={() => onViewChange(currentView === 'book' ? 'stats' : 'book')}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300 ${
+                currentView === 'stats'
+                  ? 'bg-[var(--color-primary)] text-white shadow-md'
+                  : 'text-[var(--color-primary)] hover:bg-black/5'
+              }`}
+              title={t.statistics}
+            >
+              <BarChart2 size={20} />
+              <span className="hidden sm:inline font-bold text-sm uppercase tracking-wider">{t.statistics}</span>
+            </button>
+
             <div className="flex bg-black/5 p-1 rounded-lg">
               {(['en', 'de', 'th'] as Language[]).map((lang) => (
                 <button
