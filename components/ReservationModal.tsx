@@ -165,22 +165,30 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
 
   if (!isOpen) return null;
   
-  const inputClasses = "w-full px-3 py-2.5 sm:py-2 border border-gray-300/80 rounded-lg shadow-sm focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent bg-white/80 transition-all duration-200 input-focus-glow";
+  const inputClasses = "w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent bg-white transition-all duration-200 input-focus-glow";
   const labelClasses = "block mb-1.5 text-sm font-medium text-gray-700";
-  const legendClasses = "w-full pb-2 mb-4 text-md font-semibold text-gray-800 border-b border-gray-200/80";
+  const legendClasses = "w-full pb-2 mb-4 text-md font-semibold text-gray-800 border-b border-gray-200";
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 z-50 flex justify-center items-center p-2 sm:p-4 backdrop-blur-sm">
-      <div className="glass-pane rounded-2xl w-full max-w-lg relative animate-fade-in-up flex flex-col max-h-[95vh] sm:max-h-[90vh]">
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-white/20 flex-shrink-0">
-          <h3 className="text-xl font-bold text-shadow-sm text-[var(--color-primary)]">{reservation ? 'Edit Reservation' : 'New Reservation'}</h3>
-          <button onClick={onClose} className="p-1 rounded-full text-gray-500 hover:bg-black/10 hover:text-gray-800 transition-colors">
+    <div className="fixed inset-0 bg-black/40 z-50 flex justify-center items-center p-2 sm:p-4 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl w-full max-w-lg relative animate-fade-in-up flex flex-col max-h-[95vh] sm:max-h-[90vh] shadow-2xl">
+        <style>
+          {`
+            input[type="date"]::-webkit-calendar-picker-indicator {
+              cursor: pointer;
+              filter: contrast(0.5) sepia(0) saturate(1) hue-rotate(0deg) brightness(0.5);
+            }
+          `}
+        </style>
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 flex-shrink-0">
+          <h3 className="text-xl font-bold text-[var(--color-primary)]">{reservation ? 'Edit Reservation' : 'New Reservation'}</h3>
+          <button onClick={onClose} className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-800 transition-colors">
             <X size={24} />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col flex-grow overflow-hidden">
-          <div className="p-5 sm:p-6 space-y-6 flex-grow overflow-y-auto">
-            {error && <div className="bg-red-100 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded-md text-sm">{error}</div>}
+          <div className="p-5 sm:p-6 space-y-6 flex-grow overflow-y-auto bg-white">
+            {error && <div className="bg-red-50 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded-md text-sm">{error}</div>}
             
             <fieldset className="space-y-4">
               <legend className={legendClasses}>Booking Details</legend>
@@ -244,7 +252,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
                 </div>
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                 <div>
+                <div>
                     <label htmlFor="email" className={labelClasses}>Email</label>
                     <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} className={inputClasses} />
                   </div>
@@ -263,7 +271,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
                 </div>
             </fieldset>
           </div>
-          <div className="flex items-center justify-between p-4 bg-white/20 border-t border-white/20 rounded-b-2xl flex-shrink-0">
+          <div className="flex items-center justify-between p-4 bg-gray-50 border-t border-gray-100 rounded-b-2xl flex-shrink-0">
             <div>
               {reservation && (
                 <button type="button" onClick={handleDelete} className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition-colors">
@@ -273,7 +281,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
               )}
             </div>
             <div className="flex items-center gap-3">
-              <button type="button" onClick={onClose} className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white/80 border border-gray-300/80 rounded-lg shadow-sm hover:bg-white transition-colors">
+              <button type="button" onClick={onClose} className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">
                 Cancel
               </button>
               <button type="submit" className="px-5 py-2.5 text-sm font-medium btn-gradient rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
