@@ -176,7 +176,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
           {`
             input[type="date"]::-webkit-calendar-picker-indicator {
               cursor: pointer;
-              filter: contrast(0.5) sepia(0) saturate(1) hue-rotate(0deg) brightness(0.5);
+              filter: contrast(0.5) sepia(0) saturate(1) hue-rotate(0deg) brightness(0.2);
             }
           `}
         </style>
