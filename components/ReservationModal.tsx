@@ -127,7 +127,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
   }, [formDate, timeSlots, isOpen, reservation, time]);
 
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!guestName || !pax || !time || tableId === undefined || !formDate) {
       setError('Please fill in all mandatory fields.');
@@ -146,8 +146,8 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
     };
 
     const result = reservation 
-      ? updateReservation({ ...reservationData, id: reservation.id }) 
-      : addReservation(reservationData);
+      ? await updateReservation({ ...reservationData, id: reservation.id }) 
+      : await addReservation(reservationData);
 
     if (result.success) {
       onClose();
@@ -156,9 +156,9 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (reservation && window.confirm('Are you sure you want to delete this reservation?')) {
-      deleteReservation(reservation.id);
+      await deleteReservation(reservation.id);
       onClose();
     }
   };

@@ -21,7 +21,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateChange 
     return dates;
   }, [reservations]);
 
-  const daysOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  const daysOfWeek = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -64,7 +64,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateChange 
   const renderCalendar = () => {
     const year = displayDate.getFullYear();
     const month = displayDate.getMonth();
-    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    // Monday-based: 0=Mon, 1=Tue, ..., 6=Sun
+    let firstDayOfMonth = new Date(year, month, 1).getDay();
+    firstDayOfMonth = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
+
     const totalDays = getDaysInMonth(year, month);
     const blanks = Array(firstDayOfMonth).fill(null);
     const days = Array.from({ length: totalDays }, (_, i) => i + 1);
@@ -74,7 +77,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateChange 
         return <div key={`blank-${index}`} className="p-2"></div>;
       }
       const currentDate = new Date(year, month, day);
-      const dateString = currentDate.toISOString().split('T')[0];
+      const dateString = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
       const hasReservations = reservationDates.has(dateString);
       const isSelected = selectedDate.toDateString() === currentDate.toDateString();
       const isToday = today.toDateString() === currentDate.toDateString();
@@ -139,7 +142,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateChange 
         onTouchEnd={handleTouchEnd}
       >
         <div className="grid grid-cols-7 gap-1 text-center text-sm text-gray-500 font-medium mb-2">
-          {daysOfWeek.map(day => <div key={day}>{day}</div>)}
+          {daysOfWeek.map((day, index) => <div key={`${day}-${index}`}>{day}</div>)}
         </div>
         <div className="grid grid-cols-7 gap-1">
           {renderCalendar()}
