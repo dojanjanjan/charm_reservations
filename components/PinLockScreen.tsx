@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Delete } from './Icons';
+import { useLanguage } from '../hooks/useLanguage';
+import { Language } from '../translations';
 
 interface PinLockScreenProps {
   onSuccess: () => void;
@@ -10,6 +12,7 @@ const CORRECT_PIN = '0409';
 const PinLockScreen: React.FC<PinLockScreenProps> = ({ onSuccess }) => {
   const [pin, setPin] = useState('');
   const [isError, setIsError] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
 
   useEffect(() => {
     if (pin.length === 4) {
@@ -43,7 +46,23 @@ const PinLockScreen: React.FC<PinLockScreenProps> = ({ onSuccess }) => {
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+      <div className="flex bg-white/50 backdrop-blur-sm p-1 rounded-lg mb-8 shadow-sm border border-white/20">
+        {(['en', 'de', 'th'] as Language[]).map((lang) => (
+          <button
+            key={lang}
+            onClick={() => setLanguage(lang)}
+            className={`px-3 py-1.5 text-xs font-bold rounded transition-all ${
+              language === lang 
+                ? 'bg-[var(--color-primary)] text-white shadow-md' 
+                : 'text-[var(--color-primary)] hover:bg-white/50'
+            }`}
+          >
+            {lang.toUpperCase()}
+          </button>
+        ))}
+      </div>
+
       <div className="w-full max-w-xs glass-pane p-8 rounded-2xl animate-fade-in-up">
         <div className="text-center mb-6">
           <img 
@@ -51,7 +70,7 @@ const PinLockScreen: React.FC<PinLockScreenProps> = ({ onSuccess }) => {
             alt="Charm Thai Logo" 
             className="w-32 mx-auto mb-4"
           />
-          <p className="text-gray-500 mt-1 text-sm">Enter the PIN to access the reservation book.</p>
+          <p className="text-gray-500 mt-1 text-sm">{t.enterPin}</p>
         </div>
         
         <div className={`flex justify-center space-x-4 my-8 ${isError ? 'animate-shake' : ''}`}>

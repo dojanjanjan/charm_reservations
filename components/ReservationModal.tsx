@@ -33,6 +33,7 @@ const formatDate = (d: Date): string => {
 
 const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, reservation, selectedDate, defaultTime, defaultTableId }) => {
   const { addReservation, updateReservation, deleteReservation } = useReservations();
+  const { t, language } = useLanguage();
   
   const [formDate, setFormDate] = useState(selectedDate);
   const [guestName, setGuestName] = useState('');
@@ -130,7 +131,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!guestName || !pax || !time || tableId === undefined || !formDate) {
-      setError('Please fill in all mandatory fields.');
+      setError(t.mandatoryFields);
       return;
     }
     
@@ -157,7 +158,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
   };
 
   const handleDelete = async () => {
-    if (reservation && window.confirm('Are you sure you want to delete this reservation?')) {
+    if (reservation && window.confirm(t.deleteConfirm)) {
       await deleteReservation(reservation.id);
       onClose();
     }
@@ -168,6 +169,12 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
   const inputClasses = "w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent bg-white transition-all duration-200 input-focus-glow";
   const labelClasses = "block mb-1.5 text-sm font-medium text-gray-700";
   const legendClasses = "w-full pb-2 mb-4 text-md font-semibold text-gray-800 border-b border-gray-200";
+
+  const localeMap = {
+    en: 'en-US',
+    de: 'de-DE',
+    th: 'th-TH'
+  };
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex justify-center items-center p-2 sm:p-4 backdrop-blur-sm">
@@ -181,7 +188,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
           `}
         </style>
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 flex-shrink-0">
-          <h3 className="text-xl font-bold text-[var(--color-primary)]">{reservation ? 'Edit Reservation' : 'New Reservation'}</h3>
+          <h3 className="text-xl font-bold text-[var(--color-primary)]">{reservation ? t.editReservation : t.newReservation}</h3>
           <button onClick={onClose} className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-800 transition-colors">
             <X size={24} />
           </button>
@@ -191,15 +198,15 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
             {error && <div className="bg-red-50 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded-md text-sm">{error}</div>}
             
             <fieldset className="space-y-4">
-              <legend className={legendClasses}>Booking Details</legend>
+              <legend className={legendClasses}>{t.help.creating}</legend>
               <div>
-                  <label htmlFor="date" className={labelClasses}>Date*</label>
+                  <label htmlFor="date" className={labelClasses}>{t.date}*</label>
                   <input 
                     type="date" 
                     id="date" 
                     value={formatDate(formDate)} 
                     min={formatDate(new Date())}
-                    lang="de-DE"
+                    lang={localeMap[language]}
                     onChange={e => {
                       const newDate = new Date(e.target.value + 'T00:00:00');
                       setFormDate(newDate);
@@ -210,19 +217,19 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="tableId" className={labelClasses}>Table*</label>
+                  <label htmlFor="tableId" className={labelClasses}>{t.table}*</label>
                   <select id="tableId" value={tableId} onChange={e => setTableId(Number(e.target.value))} className={inputClasses} required>
-                    <option value={UNASSIGNED_TABLE.id}>{UNASSIGNED_TABLE.name}</option>
-                    <optgroup label="Indoor">
+                    <option value={UNASSIGNED_TABLE.id}>{t.unassigned}</option>
+                    <optgroup label={t.indoor}>
                       {INDOOR_TABLES.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                     </optgroup>
-                    <optgroup label="Outdoor">
+                    <optgroup label={t.outdoor}>
                       {OUTDOOR_TABLES.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                     </optgroup>
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="time" className={labelClasses}>Time*</label>
+                  <label htmlFor="time" className={labelClasses}>{t.time}*</label>
                   <select id="time" value={time} onChange={e => setTime(e.target.value)} className={inputClasses} required disabled={timeSlots.length === 0}>
                     {timeSlots.length > 0 ? (
                       timeSlots.map(slot => <option key={slot} value={slot}>{slot}</option>)
@@ -238,15 +245,15 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
               <legend className={legendClasses}>Guest Details</legend>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="guestName" className={labelClasses}>Guest Name*</label>
+                  <label htmlFor="guestName" className={labelClasses}>{t.guestName}*</label>
                   <input type="text" id="guestName" value={guestName} onChange={e => setGuestName(e.target.value)} className={inputClasses} required />
                 </div>
                 <div>
-                  <label htmlFor="pax" className={labelClasses}>Pax*</label>
+                  <label htmlFor="pax" className={labelClasses}>{t.pax}*</label>
                   <select id="pax" value={pax} onChange={e => setPax(Number(e.target.value))} className={inputClasses} required>
                     {Array.from({ length: 12 }, (_, i) => i + 1).map(num => (
                       <option key={num} value={num}>
-                        {num} {num > 1 ? 'guests' : 'guest'}
+                        {num} {num > 1 ? t.guests : t.guest}
                       </option>
                     ))}
                   </select>
@@ -254,11 +261,11 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                    <label htmlFor="email" className={labelClasses}>Email</label>
+                    <label htmlFor="email" className={labelClasses}>{t.email}</label>
                     <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} className={inputClasses} />
                   </div>
                   <div>
-                    <label htmlFor="phone" className={labelClasses}>Phone</label>
+                    <label htmlFor="phone" className={labelClasses}>{t.phone}</label>
                     <input type="tel" id="phone" value={phone} onChange={e => setPhone(e.target.value)} className={inputClasses} />
                   </div>
               </div>
@@ -267,7 +274,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
             <fieldset>
                 <legend className={legendClasses}>Additional Information</legend>
                  <div>
-                    <label htmlFor="comments" className={labelClasses}>Comments</label>
+                    <label htmlFor="comments" className={labelClasses}>{t.comments}</label>
                     <textarea id="comments" value={comments} onChange={e => setComments(e.target.value)} rows={3} className={inputClasses}></textarea>
                 </div>
             </fieldset>
@@ -277,16 +284,16 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
               {reservation && (
                 <button type="button" onClick={handleDelete} className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition-colors">
                   <Trash2 size={16} />
-                  Delete
+                  {t.delete}
                 </button>
               )}
             </div>
             <div className="flex items-center gap-3">
               <button type="button" onClick={onClose} className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">
-                Cancel
+                {t.cancel}
               </button>
               <button type="submit" className="px-5 py-2.5 text-sm font-medium btn-gradient rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
-                {reservation ? 'Save Changes' : 'Create Reservation'}
+                {reservation ? t.saveChanges : t.createReservation}
               </button>
             </div>
           </div>

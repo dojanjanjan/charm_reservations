@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import PinLockScreen from './components/PinLockScreen';
 import ReservationBook from './components/ReservationBook';
+import { LanguageProvider } from './hooks/useLanguage';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -9,11 +10,15 @@ const App: React.FC = () => {
     setIsAuthenticated(true);
   }, []);
 
-  if (!isAuthenticated) {
-    return <PinLockScreen onSuccess={handleAuthSuccess} />;
-  }
-
-  return <ReservationBook />;
+  return (
+    <LanguageProvider>
+      {!isAuthenticated ? (
+        <PinLockScreen onSuccess={handleAuthSuccess} />
+      ) : (
+        <ReservationBook />
+      )}
+    </LanguageProvider>
+  );
 };
 
 export default App;

@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { ChevronLeft, ChevronRight, ChevronsUpDown } from './Icons';
 import { useReservations } from '../hooks/useReservations';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface CalendarViewProps {
   selectedDate: Date;
@@ -8,6 +9,7 @@ interface CalendarViewProps {
 }
 
 const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateChange }) => {
+  const { language } = useLanguage();
   const [displayDate, setDisplayDate] = useState(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1));
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { reservations } = useReservations();
@@ -21,7 +23,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateChange 
     return dates;
   }, [reservations]);
 
-  const daysOfWeek = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const daysOfWeek = useMemo(() => {
+    if (language === 'th') {
+      return ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา'];
+    } else if (language === 'de') {
+      return ['M', 'D', 'M', 'D', 'F', 'S', 'S'];
+    }
+    return ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  }, [language]);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -110,6 +119,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateChange 
     });
   };
 
+  const localeMap = {
+    en: 'en-US',
+    de: 'de-DE',
+    th: 'th-TH'
+  };
+
   return (
     <div className="glass-pane p-4 sm:p-6 rounded-2xl">
       <div className="flex items-center justify-between mb-4 gap-2">
@@ -125,7 +140,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateChange 
         >
           <div className="flex items-center justify-center gap-2">
             <h2 className="text-lg font-bold text-gray-800 select-none">
-              {displayDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
+              {displayDate.toLocaleString(localeMap[language], { month: 'long', year: 'numeric' })}
             </h2>
             <ChevronsUpDown size={18} className={`text-gray-500 transition-transform duration-300 group-hover:text-gray-900 ${isCollapsed ? 'rotate-180' : ''}`} />
           </div>

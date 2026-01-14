@@ -8,12 +8,14 @@ import ReservationModal from './ReservationModal';
 import { useReservations } from '../hooks/useReservations';
 import { ALL_TABLES } from '../constants';
 import { Plus, Info } from './Icons';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface ReservationViewProps {
   selectedDate: Date;
 }
 
 const ReservationView: React.FC<ReservationViewProps> = ({ selectedDate }) => {
+  const { t, language } = useLanguage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState<{ reservation?: Reservation; tableId?: number; time?: string }>({});
 
@@ -33,7 +35,7 @@ const ReservationView: React.FC<ReservationViewProps> = ({ selectedDate }) => {
       <div className="glass-pane p-4 sm:p-6 rounded-2xl flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-500 font-medium">Loading reservations...</p>
+          <p className="text-gray-500 font-medium">{t.loading}</p>
         </div>
       </div>
     );
@@ -49,7 +51,13 @@ const ReservationView: React.FC<ReservationViewProps> = ({ selectedDate }) => {
     setIsModalOpen(true);
   };
 
-  const dateHeader = selectedDate.toLocaleDateString('de-DE', {
+  const localeMap = {
+    en: 'en-US',
+    de: 'de-DE',
+    th: 'th-TH'
+  };
+
+  const dateHeader = selectedDate.toLocaleDateString(localeMap[language], {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -64,7 +72,7 @@ const ReservationView: React.FC<ReservationViewProps> = ({ selectedDate }) => {
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{dateHeader}</h2>
           <p className="text-sm text-gray-500">
-            {reservationsForDay.length} reservation{reservationsForDay.length !== 1 && 's'} today
+            {t.reservationsCount(reservationsForDay.length)}
           </p>
         </div>
         <div className="flex w-full sm:w-auto items-center gap-2 sm:gap-4">
@@ -73,7 +81,7 @@ const ReservationView: React.FC<ReservationViewProps> = ({ selectedDate }) => {
             className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2.5 sm:px-4 text-xs sm:text-sm font-medium btn-gradient rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
           >
             <Plus size={18} />
-            New Reservation
+            {t.newReservation}
           </button>
         </div>
       </div>
@@ -82,8 +90,8 @@ const ReservationView: React.FC<ReservationViewProps> = ({ selectedDate }) => {
          <div className="bg-amber-50/50 border-l-4 border-[var(--color-accent)] text-gray-800 p-4 rounded-lg mb-6 flex items-center gap-4 shadow-sm" role="alert">
             <Info size={24} className="flex-shrink-0 text-[var(--color-accent)]" />
             <div>
-                <p className="font-bold">Montags Ruhetag (Rest Day)</p>
-                <p className="text-sm text-gray-600">Please note that service may be limited on Mondays.</p>
+                <p className="font-bold">{t.mondayRuhetag}</p>
+                <p className="text-sm text-gray-600">{t.mondayMessage}</p>
             </div>
         </div>
       )}
@@ -96,7 +104,6 @@ const ReservationView: React.FC<ReservationViewProps> = ({ selectedDate }) => {
 
         <UpcomingListView 
           reservations={reservations}
-          selectedDate={selectedDate}
           onSelectReservation={openEditReservationModal}
         />
       </div>

@@ -3,6 +3,7 @@ import React from 'react';
 import { Reservation } from '../types';
 import { ALL_TABLES, UNASSIGNED_TABLE } from '../constants';
 import { Edit, Users, Clock, MapPin } from './Icons';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface ListViewProps {
   reservations: Reservation[];
@@ -12,8 +13,9 @@ interface ListViewProps {
 const tableMap = new Map(ALL_TABLES.map(t => [t.id, t]));
 
 const ListView: React.FC<ListViewProps> = ({ reservations, onSelectReservation }) => {
+  const { t } = useLanguage();
   if (reservations.length === 0) {
-    return <div className="text-center py-10 text-gray-500">No reservations for this day.</div>;
+    return <div className="text-center py-10 text-gray-500">{t.noReservations}</div>;
   }
 
   const sortedReservations = [...reservations].sort((a, b) => {
@@ -37,14 +39,14 @@ const ListView: React.FC<ListViewProps> = ({ reservations, onSelectReservation }
                     <div className="text-sm text-gray-500 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
                         {table && table.id !== UNASSIGNED_TABLE.id ? (
                            <span className={`flex items-center gap-1.5 font-medium ${table.area === 'Indoor' ? 'text-[var(--color-primary)]' : 'text-[var(--color-accent)]'}`}>
-                              <MapPin size={14}/> {table.name} ({table.area})
+                              <MapPin size={14}/> {table.name} ({table.area === 'Indoor' ? t.indoor : t.outdoor})
                            </span>
                         ) : (
                           <span className="flex items-center gap-1.5 font-medium text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md">
-                            <MapPin size={14}/> Unassigned
+                            <MapPin size={14}/> {t.unassigned}
                           </span>
                         )}
-                        <span className="flex items-center gap-1.5"><Users size={14}/> {res.pax} guest{res.pax > 1 ? 's' : ''}</span>
+                        <span className="flex items-center gap-1.5"><Users size={14}/> {res.pax} {res.pax > 1 ? t.guests : t.guest}</span>
                     </div>
                 </div>
             </div>
@@ -53,7 +55,7 @@ const ListView: React.FC<ListViewProps> = ({ reservations, onSelectReservation }
               className="flex items-center gap-2 self-end sm:self-center px-4 py-2 text-sm font-medium text-gray-700 bg-white/80 border border-gray-300/80 rounded-lg shadow-sm hover:bg-white transition-all focus:ring-2 focus:ring-offset-1 focus:ring-[var(--color-accent)]"
             >
               <Edit size={14} />
-              Details
+              {t.details}
             </button>
           </div>
         );
