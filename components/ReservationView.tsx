@@ -3,6 +3,7 @@ import { ViewMode, Reservation } from '../types';
 import ViewToggle from './ViewToggle';
 import TimelineView from './TimelineView';
 import ListView from './ListView';
+import UpcomingListView from './UpcomingListView';
 import ReservationModal from './ReservationModal';
 import { useReservations } from '../hooks/useReservations';
 import { ALL_TABLES } from '../constants';
@@ -16,7 +17,7 @@ const ReservationView: React.FC<ReservationViewProps> = ({ selectedDate }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState<{ reservation?: Reservation; tableId?: number; time?: string }>({});
 
-  const { getReservationsForDate, loading } = useReservations();
+  const { getReservationsForDate, loading, reservations } = useReservations();
 
   const selectedDateString = useMemo(() => {
     const year = selectedDate.getFullYear();
@@ -91,6 +92,12 @@ const ReservationView: React.FC<ReservationViewProps> = ({ selectedDate }) => {
         <ListView 
           reservations={reservationsForDay} 
           onSelectReservation={openEditReservationModal} 
+        />
+
+        <UpcomingListView 
+          reservations={reservations}
+          selectedDate={selectedDate}
+          onSelectReservation={openEditReservationModal}
         />
       </div>
 
