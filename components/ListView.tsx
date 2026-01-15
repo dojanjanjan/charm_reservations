@@ -18,6 +18,17 @@ const ListView: React.FC<ListViewProps> = ({ reservations, onSelectReservation }
     return <div className="text-center py-10 text-gray-500">{t.noReservations}</div>;
   }
 
+  const getStatusMeta = (status?: Reservation['status']) => {
+    const s = status || 'pending';
+    if (s === 'confirmed') {
+      return { label: t.confirmed, className: 'bg-emerald-100 text-emerald-800 border border-emerald-200' };
+    }
+    if (s === 'cancelled') {
+      return { label: t.cancelled, className: 'bg-gray-100 text-gray-700 border border-gray-200' };
+    }
+    return { label: t.pending, className: 'bg-amber-100 text-amber-800 border border-amber-200' };
+  };
+
   const sortedReservations = [...reservations].sort((a, b) => {
     return a.time.localeCompare(b.time) || a.tableId - b.tableId;
   });
@@ -26,6 +37,7 @@ const ListView: React.FC<ListViewProps> = ({ reservations, onSelectReservation }
     <div className="space-y-4">
       {sortedReservations.map(res => {
         const table = tableMap.get(res.tableId);
+        const statusMeta = getStatusMeta(res.status);
 
         return (
           <div key={res.id} className="glass-pane p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-shadow hover:shadow-lg">
@@ -35,7 +47,12 @@ const ListView: React.FC<ListViewProps> = ({ reservations, onSelectReservation }
                     <span className="text-sm text-gray-500">:{res.time.split(':')[1]}</span>
                 </div>
                 <div className="min-w-0 flex-1">
-                    <h3 className="font-bold text-gray-800 text-lg truncate">{res.guestName}</h3>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <h3 className="font-bold text-gray-800 text-lg truncate">{res.guestName}</h3>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${statusMeta.className}`}>
+                        {statusMeta.label}
+                      </span>
+                    </div>
                     <div className="text-sm text-gray-500 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
                         <span className="flex items-center gap-1.5 font-medium text-gray-700">
                           <Users size={14} className="text-gray-400"/> {res.pax} {res.pax > 1 ? t.guests : t.guest}

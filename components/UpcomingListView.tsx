@@ -23,8 +23,8 @@ const UpcomingListView: React.FC<UpcomingListViewProps> = ({ reservations, onSel
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Start from tomorrow, show next 7 days
-    for (let i = 1; i <= 7; i++) {
+    // Start from today, show next 7 days (today + 6)
+    for (let i = 0; i < 7; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       const dateString = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
