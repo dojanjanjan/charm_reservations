@@ -17,6 +17,8 @@ export interface Reservation {
   phone?: string;
   comments?: string;
   status?: 'pending' | 'confirmed' | 'cancelled';
+  confirmedBy?: string;
+  confirmationMessage?: string;
 }
 
 export enum ViewMode {

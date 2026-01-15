@@ -45,6 +45,8 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
   const [phone, setPhone] = useState('');
   const [comments, setComments] = useState('');
   const [status, setStatus] = useState<Reservation['status']>('pending');
+  const [confirmedBy, setConfirmedBy] = useState('');
+  const [confirmationMessage, setConfirmationMessage] = useState('');
   const [error, setError] = useState('');
   const [isConfirming, setIsConfirming] = useState(false);
 
@@ -62,7 +64,9 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
           time: res.time,
           pax: res.pax,
           tableId: res.tableId,
-          comments: res.comments
+          comments: res.comments,
+          confirmedBy: res.confirmedBy,
+          confirmationMessage: res.confirmationMessage
         }
       })
     });
@@ -110,6 +114,8 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
         setPhone(reservation.phone || '');
         setComments(reservation.comments || '');
         setStatus(reservation.status || 'pending');
+        setConfirmedBy(reservation.confirmedBy || '');
+        setConfirmationMessage(reservation.confirmationMessage || '');
       } else {
         setFormDate(selectedDate);
         setGuestName('');
@@ -119,6 +125,8 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
         setPhone('');
         setComments('');
         setStatus('pending');
+        setConfirmedBy('');
+        setConfirmationMessage('');
 
         const dayOfWeek = selectedDate.getDay();
         const hours = OPENING_HOURS[dayOfWeek as keyof typeof OPENING_HOURS];
@@ -175,6 +183,8 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
       phone,
       comments,
       status: status || 'pending' as Reservation['status'],
+      confirmedBy: confirmedBy || undefined,
+      confirmationMessage: confirmationMessage || undefined,
     };
 
     const wasConfirmed = reservation?.status === 'confirmed';
@@ -186,12 +196,16 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
 
     if (result.success) {
       if (reservation && willBeConfirmed) {
+        if (!confirmedBy.trim()) {
+          setError(t.confirmedByRequired);
+          return;
+        }
         if (!email) {
           // saved, but no email to send
         } else {
           try {
             const emailType: 'confirmed' | 'updated' = (!wasConfirmed && willBeConfirmed) ? 'confirmed' : 'updated';
-            await sendReservationEmail(emailType, { ...reservationData, id: reservation.id } as Reservation);
+            await sendReservationEmail(emailType, { ...reservationData, id: reservation.id, confirmedBy: confirmedBy.trim() } as Reservation);
             window.alert(emailType === 'confirmed' ? t.confirmationSent : t.updateEmailSent);
           } catch (err) {
             console.error(err);
@@ -216,6 +230,11 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
       return;
     }
 
+    if (!confirmedBy.trim()) {
+      setError(t.confirmedByRequired);
+      return;
+    }
+
     setIsConfirming(true);
     try {
       const updated: Reservation = {
@@ -228,7 +247,9 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
         email,
         phone,
         comments,
-        status: 'confirmed'
+        status: 'confirmed',
+        confirmedBy: confirmedBy.trim(),
+        confirmationMessage: confirmationMessage || undefined
       };
 
       const result = await updateReservation(updated);
@@ -317,6 +338,34 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
                       </button>
                     )}
                   </div>
+                </div>
+              )}
+              {reservation && (
+                <div>
+                  <label htmlFor="confirmedBy" className={labelClasses}>{t.confirmedBy}*</label>
+                  <input
+                    type="text"
+                    id="confirmedBy"
+                    value={confirmedBy}
+                    onChange={e => setConfirmedBy(e.target.value)}
+                    placeholder={t.confirmedByPlaceholder}
+                    className={inputClasses}
+                    required={status === 'confirmed'}
+                  />
+                </div>
+              )}
+              {reservation && (
+                <div>
+                  <label htmlFor="confirmationMessage" className={labelClasses}>{t.confirmationMessage}</label>
+                  <textarea
+                    id="confirmationMessage"
+                    value={confirmationMessage}
+                    onChange={e => setConfirmationMessage(e.target.value)}
+                    rows={2}
+                    placeholder={t.confirmationMessagePlaceholder}
+                    className={inputClasses}
+                    readOnly={status === 'confirmed'}
+                  />
                 </div>
               )}
               <div>

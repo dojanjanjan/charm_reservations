@@ -59,7 +59,9 @@ export const useReservationState = () => {
           email: row.email || '',
           phone: row.phone || '',
           comments: row.comment || '',
-          status: row.status as Reservation['status']
+          status: row.status as Reservation['status'],
+          confirmedBy: row.confirmed_by || '',
+          confirmationMessage: row.confirmation_message || ''
         };
       });
 
@@ -118,7 +120,9 @@ export const useReservationState = () => {
           email: res.email,
           phone: res.phone,
           comment: res.comments,
-          status: res.status || 'pending'
+          status: res.status || 'pending',
+          confirmed_by: res.confirmedBy,
+          confirmation_message: res.confirmationMessage
         }])
         .select()
         .single();
@@ -135,7 +139,9 @@ export const useReservationState = () => {
         email: data.email,
         phone: data.phone,
         comments: data.comment,
-        status: data.status as Reservation['status']
+        status: data.status as Reservation['status'],
+        confirmedBy: data.confirmed_by || '',
+        confirmationMessage: data.confirmation_message || ''
       };
 
       setReservations(prev => [...prev, newRes]);
@@ -163,7 +169,9 @@ export const useReservationState = () => {
           email: res.email,
           phone: res.phone,
           comment: res.comments,
-          status: res.status
+          status: res.status,
+          confirmed_by: res.confirmedBy,
+          confirmation_message: res.confirmationMessage
         })
         .eq('id', res.id);
 

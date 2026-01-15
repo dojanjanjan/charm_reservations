@@ -33,6 +33,8 @@ function buildEmail({ type, reservation, language }) {
   const dateLabel = formatDateLocal(reservation.date, language);
   const timeLabel = reservation.time || '';
   const paxLabel = reservation.pax ? String(reservation.pax) : '';
+  const confirmedBy = reservation.confirmedBy || '';
+  const confirmationMessage = reservation.confirmationMessage || '';
 
   const subjectMap = {
     en: {
@@ -59,6 +61,8 @@ function buildEmail({ type, reservation, language }) {
       details: 'Details',
       pax: 'Guests',
       table: 'Table',
+      confirmedBy: 'Confirmed by',
+      message: 'Message',
       comments: 'Notes',
       footer: 'If you have questions, please reply to this email.'
     },
@@ -71,6 +75,8 @@ function buildEmail({ type, reservation, language }) {
       details: 'Details',
       pax: 'Personen',
       table: 'Tisch',
+      confirmedBy: 'Bestätigt von',
+      message: 'Nachricht',
       comments: 'Anmerkungen',
       footer: 'Wenn Sie Fragen haben, antworten Sie bitte auf diese E-Mail.'
     },
@@ -83,6 +89,8 @@ function buildEmail({ type, reservation, language }) {
       details: 'รายละเอียด',
       pax: 'จำนวนคน',
       table: 'โต๊ะ',
+      confirmedBy: 'ผู้ยืนยันการจอง',
+      message: 'ข้อความ',
       comments: 'หมายเหตุ',
       footer: 'หากมีคำถาม กรุณาตอบกลับอีเมลนี้'
     }
@@ -106,6 +114,8 @@ function buildEmail({ type, reservation, language }) {
       <div><b>${safe(dateLabel)}</b> – ${safe(timeLabel)}</div>
       <div>${safe(copy.pax)}: <b>${safe(paxLabel)}</b></div>
       ${reservation.tableId !== undefined && reservation.tableId !== null ? `<div>${safe(copy.table)}: <b>${safe(String(reservation.tableId))}</b></div>` : ''}
+      ${confirmedBy ? `<div>${safe(copy.confirmedBy)}: <b>${safe(confirmedBy)}</b></div>` : ''}
+      ${type === 'confirmed' && confirmationMessage ? `<div style="margin-top:8px;"><span style="color:#374151;">${safe(copy.message)}:</span><br/>${safe(confirmationMessage)}</div>` : ''}
       ${reservation.comments ? `<div style="margin-top:8px;"><span style="color:#374151;">${safe(copy.comments)}:</span><br/>${safe(reservation.comments)}</div>` : ''}
     </div>
     <p style="margin:16px 0 0 0;color:#374151;">${safe(copy.footer)}</p>
@@ -121,6 +131,8 @@ function buildEmail({ type, reservation, language }) {
     `${dateLabel} - ${timeLabel}`,
     `${copy.pax}: ${paxLabel}`,
     reservation.tableId !== undefined && reservation.tableId !== null ? `${copy.table}: ${reservation.tableId}` : '',
+    confirmedBy ? `${copy.confirmedBy}: ${confirmedBy}` : '',
+    type === 'confirmed' && confirmationMessage ? `${copy.message}: ${confirmationMessage}` : '',
     reservation.comments ? `${copy.comments}: ${reservation.comments}` : '',
     '',
     copy.footer
