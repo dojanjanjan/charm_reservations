@@ -58,7 +58,8 @@ export const useReservationState = () => {
           tableId: parseInt(row.table_number || '0'),
           email: row.email || '',
           phone: row.phone || '',
-          comments: row.comment || ''
+          comments: row.comment || '',
+          status: row.status as Reservation['status']
         };
       });
 
@@ -117,7 +118,7 @@ export const useReservationState = () => {
           email: res.email,
           phone: res.phone,
           comment: res.comments,
-          status: 'confirmed'
+          status: res.status || 'pending'
         }])
         .select()
         .single();
@@ -133,7 +134,8 @@ export const useReservationState = () => {
         tableId: parseInt(data.table_number),
         email: data.email,
         phone: data.phone,
-        comments: data.comment
+        comments: data.comment,
+        status: data.status as Reservation['status']
       };
 
       setReservations(prev => [...prev, newRes]);
@@ -160,7 +162,8 @@ export const useReservationState = () => {
           table_number: res.tableId.toString(),
           email: res.email,
           phone: res.phone,
-          comment: res.comments
+          comment: res.comments,
+          status: res.status
         })
         .eq('id', res.id);
 

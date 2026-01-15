@@ -24,4 +24,5 @@ export {
   PieChart,
   TrendingUp,
   ArrowLeft,
+  Send,
 } from 'lucide-react';

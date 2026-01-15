@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, FormEvent } from 'react';
 import { Reservation } from '../types';
 import { useReservations } from '../hooks/useReservations';
 import { INDOOR_TABLES, OUTDOOR_TABLES, OPENING_HOURS, TIME_SLOT_MINUTES, RESERVATION_DURATION_MINUTES, UNASSIGNED_TABLE } from '../constants';
-import { X, Trash2 } from './Icons';
+import { X, Trash2, Send } from './Icons';
 import { useLanguage } from '../hooks/useLanguage';
 
 interface ReservationModalProps {
@@ -44,7 +44,34 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [comments, setComments] = useState('');
+  const [status, setStatus] = useState<Reservation['status']>('pending');
   const [error, setError] = useState('');
+  const [isConfirming, setIsConfirming] = useState(false);
+
+  const sendReservationEmail = async (type: 'confirmed' | 'updated', res: Reservation) => {
+    const response = await fetch('/.netlify/functions/send-reservation-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type,
+        language,
+        reservation: {
+          guestName: res.guestName,
+          email: res.email,
+          date: res.date,
+          time: res.time,
+          pax: res.pax,
+          tableId: res.tableId,
+          comments: res.comments
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      throw new Error(payload?.error || 'Email failed');
+    }
+  };
 
   const timeSlots = useMemo(() => {
     if (!formDate) return [];
@@ -82,6 +109,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
         setEmail(reservation.email || '');
         setPhone(reservation.phone || '');
         setComments(reservation.comments || '');
+        setStatus(reservation.status || 'pending');
       } else {
         setFormDate(selectedDate);
         setGuestName('');
@@ -90,6 +118,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
         setEmail('');
         setPhone('');
         setComments('');
+        setStatus('pending');
 
         const dayOfWeek = selectedDate.getDay();
         const hours = OPENING_HOURS[dayOfWeek as keyof typeof OPENING_HOURS];
@@ -145,16 +174,78 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
       email,
       phone,
       comments,
+      status: status || 'pending' as Reservation['status'],
     };
 
-    const result = reservation 
-      ? await updateReservation({ ...reservationData, id: reservation.id }) 
+    const wasConfirmed = reservation?.status === 'confirmed';
+    const willBeConfirmed = reservationData.status === 'confirmed';
+
+    const result = reservation
+      ? await updateReservation({ ...reservationData, id: reservation.id })
       : await addReservation(reservationData);
 
     if (result.success) {
+      if (reservation && willBeConfirmed) {
+        if (!email) {
+          // saved, but no email to send
+        } else {
+          try {
+            const emailType: 'confirmed' | 'updated' = (!wasConfirmed && willBeConfirmed) ? 'confirmed' : 'updated';
+            await sendReservationEmail(emailType, { ...reservationData, id: reservation.id } as Reservation);
+            window.alert(emailType === 'confirmed' ? t.confirmationSent : t.updateEmailSent);
+          } catch (err) {
+            console.error(err);
+            setError(t.emailSendFailed);
+            return;
+          }
+        }
+      }
       onClose();
     } else {
       setError(result.message);
+    }
+  };
+
+  const handleConfirm = async () => {
+    if (!reservation) return;
+
+    setError('');
+
+    if (!reservation.email) {
+      setError(t.emailMissing);
+      return;
+    }
+
+    setIsConfirming(true);
+    try {
+      const updated: Reservation = {
+        ...reservation,
+        guestName,
+        pax: Number(pax),
+        date: formatDate(formDate),
+        time,
+        tableId: Number(tableId),
+        email,
+        phone,
+        comments,
+        status: 'confirmed'
+      };
+
+      const result = await updateReservation(updated);
+      if (!result.success) {
+        setError(result.message);
+        return;
+      }
+
+      await sendReservationEmail('confirmed', updated);
+      setStatus('confirmed');
+      window.alert(t.confirmationSent);
+      onClose();
+    } catch (err) {
+      console.error(err);
+      setError(t.emailSendFailed);
+    } finally {
+      setIsConfirming(false);
     }
   };
 
@@ -200,6 +291,34 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
             
             <fieldset className="space-y-4">
               <legend className={legendClasses}>{t.help.creating}</legend>
+              {reservation && (
+                <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">
+                  <div className="text-sm font-medium text-gray-700">{t.status}</div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                      status === 'confirmed'
+                        ? 'bg-green-100 text-green-800'
+                        : status === 'cancelled'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-amber-100 text-amber-800'
+                    }`}>
+                      {status === 'confirmed' ? t.confirmed : status === 'cancelled' ? t.cancelled : t.pending}
+                    </span>
+                    {status !== 'confirmed' && (
+                      <button
+                        type="button"
+                        onClick={handleConfirm}
+                        disabled={isConfirming}
+                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-white bg-[var(--color-accent)] rounded-lg shadow-sm hover:opacity-95 disabled:opacity-60"
+                        title={t.sendConfirmation}
+                      >
+                        <Send size={14} />
+                        {t.confirm}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
               <div>
                   <label htmlFor="date" className={labelClasses}>{t.date}*</label>
                   <input 
