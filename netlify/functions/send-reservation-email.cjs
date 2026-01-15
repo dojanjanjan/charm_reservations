@@ -173,8 +173,14 @@ exports.handler = async (event) => {
   const fromEmail = getEnv('MAIL_FROM_EMAIL', smtpUser);
   const bcc = getEnv('MAIL_BCC', null);
 
-  if (!smtpHost || !smtpUser || !smtpPass || !fromEmail) {
-    return json(500, { error: 'Missing SMTP configuration' });
+  const missing = [];
+  if (!smtpHost) missing.push('SMTP_HOST');
+  if (!smtpPort || Number.isNaN(smtpPort)) missing.push('SMTP_PORT');
+  if (!smtpUser) missing.push('SMTP_USER');
+  if (!smtpPass) missing.push('SMTP_PASS');
+  if (!fromEmail) missing.push('MAIL_FROM_EMAIL');
+  if (missing.length > 0) {
+    return json(500, { error: 'Missing SMTP configuration', missing });
   }
 
   const transporter = nodemailer.createTransport({
@@ -200,7 +206,12 @@ exports.handler = async (event) => {
     return json(200, { ok: true, messageId: info.messageId || null });
   } catch (err) {
     console.error('sendMail error', err);
-    return json(500, { error: 'Failed to send email' });
+    return json(500, {
+      error: 'Failed to send email',
+      details: err && err.message ? String(err.message) : 'Unknown error',
+      code: err && err.code ? String(err.code) : undefined,
+      responseCode: err && err.responseCode ? Number(err.responseCode) : undefined
+    });
   }
 };
 

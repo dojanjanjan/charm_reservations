@@ -73,7 +73,10 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
 
     if (!response.ok) {
       const payload = await response.json().catch(() => ({}));
-      throw new Error(payload?.error || 'Email failed');
+      const missing = Array.isArray(payload?.missing) ? payload.missing.join(', ') : '';
+      const details = payload?.details ? String(payload.details) : '';
+      const extra = [missing ? `missing: ${missing}` : '', details].filter(Boolean).join(' | ');
+      throw new Error([payload?.error || 'Email failed', extra].filter(Boolean).join(' - '));
     }
   };
 
@@ -173,6 +176,11 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
       return;
     }
     
+    if ((status || 'pending') === 'confirmed' && !confirmedBy.trim()) {
+      setError(t.confirmedByRequired);
+      return;
+    }
+
     const reservationData = {
       guestName,
       pax: Number(pax),
@@ -196,10 +204,6 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
 
     if (result.success) {
       if (reservation && willBeConfirmed) {
-        if (!confirmedBy.trim()) {
-          setError(t.confirmedByRequired);
-          return;
-        }
         if (!email) {
           // saved, but no email to send
         } else {
@@ -209,7 +213,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
             window.alert(emailType === 'confirmed' ? t.confirmationSent : t.updateEmailSent);
           } catch (err) {
             console.error(err);
-            setError(t.emailSendFailed);
+            setError(`${t.emailSendFailed} ${err instanceof Error ? `(${err.message})` : ''}`.trim());
             return;
           }
         }
@@ -237,7 +241,8 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
 
     setIsConfirming(true);
     try {
-      const updated: Reservation = {
+      // Step 1: store confirmer/message while still pending (so "confirmed" only happens if email was sent)
+      const pendingWithMeta: Reservation = {
         ...reservation,
         guestName,
         pax: Number(pax),
@@ -247,24 +252,26 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
         email,
         phone,
         comments,
-        status: 'confirmed',
+        status: 'pending',
         confirmedBy: confirmedBy.trim(),
         confirmationMessage: confirmationMessage || undefined
       };
 
-      const result = await updateReservation(updated);
-      if (!result.success) {
-        setError(result.message);
-        return;
-      }
+      const saveMeta = await updateReservation(pendingWithMeta);
+      if (!saveMeta.success) return void setError(saveMeta.message);
 
-      await sendReservationEmail('confirmed', updated);
+      // Step 2: send email (uses confirmed content)
+      await sendReservationEmail('confirmed', { ...pendingWithMeta, status: 'confirmed' });
+
+      // Step 3: mark as confirmed in DB
+      const markConfirmed = await updateReservation({ ...pendingWithMeta, status: 'confirmed' });
+      if (!markConfirmed.success) return void setError(markConfirmed.message);
+
       setStatus('confirmed');
-      window.alert(t.confirmationSent);
       onClose();
     } catch (err) {
       console.error(err);
-      setError(t.emailSendFailed);
+      setError(`${t.emailSendFailed} ${err instanceof Error ? `(${err.message})` : ''}`.trim());
     } finally {
       setIsConfirming(false);
     }
