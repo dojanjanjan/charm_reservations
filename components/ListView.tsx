@@ -29,6 +29,13 @@ const ListView: React.FC<ListViewProps> = ({ reservations, onSelectReservation }
     return { label: t.pending, className: 'bg-amber-100 text-amber-800 border border-amber-200' };
   };
 
+  const getConfirmationInitials = (name?: string) => {
+    if (!name) return '';
+    if (name === 'Chef') return 'CH';
+    if (name === 'Other') return 'OT';
+    return name.substring(0, 2).toUpperCase();
+  };
+
   const sortedReservations = [...reservations].sort((a, b) => {
     return a.time.localeCompare(b.time) || a.tableId - b.tableId;
   });
@@ -38,13 +45,19 @@ const ListView: React.FC<ListViewProps> = ({ reservations, onSelectReservation }
       {sortedReservations.map(res => {
         const table = tableMap.get(res.tableId);
         const statusMeta = getStatusMeta(res.status);
+        const confirmationInitials = getConfirmationInitials(res.confirmedBy);
 
         return (
           <div key={res.id} className="glass-pane p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-shadow hover:shadow-lg">
             <div className="flex-1 flex items-center gap-4 min-w-0 w-full sm:w-auto">
-               <div className="flex flex-col items-center justify-center bg-black/5 p-3 rounded-lg w-20 flex-shrink-0">
+               <div className="flex flex-col items-center justify-center bg-black/5 p-3 rounded-lg w-20 flex-shrink-0 relative">
                     <span className="font-bold text-2xl text-[var(--color-primary)]">{res.time.split(':')[0]}</span>
                     <span className="text-sm text-gray-500">:{res.time.split(':')[1]}</span>
+                    {res.status === 'confirmed' && res.confirmedBy && (
+                      <div className="absolute -bottom-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-sm border border-white" title={`Confirmed by ${res.confirmedBy}`}>
+                        {confirmationInitials}
+                      </div>
+                    )}
                 </div>
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 min-w-0">

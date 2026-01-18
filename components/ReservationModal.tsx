@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, FormEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { Reservation } from '../types';
 import { useReservations } from '../hooks/useReservations';
 import { INDOOR_TABLES, OUTDOOR_TABLES, OPENING_HOURS, TIME_SLOT_MINUTES, RESERVATION_DURATION_MINUTES, UNASSIGNED_TABLE } from '../constants';
@@ -32,6 +33,8 @@ const formatDate = (d: Date): string => {
     return `${year}-${month}-${day}`;
 }
 
+const STAFF_MEMBERS = ['Chef', 'Pear', 'Nop', 'Tias'];
+
 const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, reservation, selectedDate, defaultTime, defaultTableId }) => {
   const { addReservation, updateReservation, deleteReservation } = useReservations();
   const { t, language } = useLanguage();
@@ -46,6 +49,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
   const [comments, setComments] = useState('');
   const [status, setStatus] = useState<Reservation['status']>('pending');
   const [confirmedBy, setConfirmedBy] = useState('');
+  const [customConfirmedBy, setCustomConfirmedBy] = useState('');
   const [confirmationMessage, setConfirmationMessage] = useState('');
   const [error, setError] = useState('');
   const [isConfirming, setIsConfirming] = useState(false);
@@ -117,7 +121,17 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
         setPhone(reservation.phone || '');
         setComments(reservation.comments || '');
         setStatus(reservation.status || 'pending');
-        setConfirmedBy(reservation.confirmedBy || '');
+        const reservedBy = reservation.confirmedBy || '';
+        if (STAFF_MEMBERS.includes(reservedBy)) {
+          setConfirmedBy(reservedBy);
+          setCustomConfirmedBy('');
+        } else if (reservedBy) {
+          setConfirmedBy('Other');
+          setCustomConfirmedBy(reservedBy);
+        } else {
+          setConfirmedBy('');
+          setCustomConfirmedBy('');
+        }
         setConfirmationMessage(reservation.confirmationMessage || '');
       } else {
         setFormDate(selectedDate);
@@ -129,6 +143,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
         setComments('');
         setStatus('pending');
         setConfirmedBy('');
+        setCustomConfirmedBy('');
         setConfirmationMessage('');
 
         const dayOfWeek = selectedDate.getDay();
@@ -176,7 +191,9 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
       return;
     }
     
-    if ((status || 'pending') === 'confirmed' && !confirmedBy.trim()) {
+    const finalConfirmedBy = confirmedBy === 'Other' ? customConfirmedBy : confirmedBy;
+
+    if ((status || 'pending') === 'confirmed' && !finalConfirmedBy.trim()) {
       setError(t.confirmedByRequired);
       return;
     }
@@ -191,7 +208,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
       phone,
       comments,
       status: status || 'pending' as Reservation['status'],
-      confirmedBy: confirmedBy || undefined,
+      confirmedBy: finalConfirmedBy || undefined,
       confirmationMessage: confirmationMessage || undefined,
     };
 
@@ -209,7 +226,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
         } else {
           try {
             const emailType: 'confirmed' | 'updated' = (!wasConfirmed && willBeConfirmed) ? 'confirmed' : 'updated';
-            await sendReservationEmail(emailType, { ...reservationData, id: reservation.id, confirmedBy: confirmedBy.trim() } as Reservation);
+            await sendReservationEmail(emailType, { ...reservationData, id: reservation.id, confirmedBy: finalConfirmedBy.trim() } as Reservation);
             window.alert(emailType === 'confirmed' ? t.confirmationSent : t.updateEmailSent);
           } catch (err) {
             console.error(err);
@@ -234,7 +251,9 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
       return;
     }
 
-    if (!confirmedBy.trim()) {
+    const finalConfirmedBy = confirmedBy === 'Other' ? customConfirmedBy : confirmedBy;
+
+    if (!finalConfirmedBy.trim()) {
       setError(t.confirmedByRequired);
       return;
     }
@@ -253,7 +272,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
         phone,
         comments,
         status: 'pending',
-        confirmedBy: confirmedBy.trim(),
+        confirmedBy: finalConfirmedBy.trim(),
         confirmationMessage: confirmationMessage || undefined
       };
 
@@ -296,9 +315,9 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
     th: 'th-TH'
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/40 z-50 flex justify-center items-center p-2 sm:p-4 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl w-full max-w-lg relative animate-fade-in-up flex flex-col max-h-[95vh] sm:max-h-[90vh] shadow-2xl">
+  return createPortal(
+    <div className="fixed inset-0 bg-black/40 z-[9999] flex justify-center items-center p-2 sm:p-4 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl w-full max-w-lg relative animate-fade-in-up flex flex-col max-h-[95vh] sm:max-h-[90vh] shadow-2xl z-[10000]">
         <style>
           {`
             input[type="date"]::-webkit-calendar-picker-indicator {
@@ -320,61 +339,85 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
             <fieldset className="space-y-4">
               <legend className={legendClasses}>{t.help.creating}</legend>
               {reservation && (
-                <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">
-                  <div className="text-sm font-medium text-gray-700">{t.status}</div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                      status === 'confirmed'
-                        ? 'bg-green-100 text-green-800'
-                        : status === 'cancelled'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-amber-100 text-amber-800'
-                    }`}>
-                      {status === 'confirmed' ? t.confirmed : status === 'cancelled' ? t.cancelled : t.pending}
-                    </span>
-                    {status !== 'confirmed' && (
-                      <button
-                        type="button"
-                        onClick={handleConfirm}
-                        disabled={isConfirming}
-                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-white bg-[var(--color-accent)] rounded-lg shadow-sm hover:opacity-95 disabled:opacity-60"
-                        title={t.sendConfirmation}
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-4 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-medium text-gray-700">{t.status}</div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                        status === 'confirmed'
+                          ? 'bg-green-100 text-green-800'
+                          : status === 'cancelled'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {status === 'confirmed' ? t.confirmed : status === 'cancelled' ? t.cancelled : t.pending}
+                      </span>
+                      {status !== 'confirmed' && (
+                        <button
+                          type="button"
+                          onClick={handleConfirm}
+                          disabled={isConfirming}
+                          className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-white bg-[var(--color-accent)] rounded-lg shadow-sm hover:opacity-95 disabled:opacity-60"
+                          title={t.sendConfirmation}
+                        >
+                          <Send size={14} />
+                          {t.confirm}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="confirmedBy" className={labelClasses}>{t.confirmedBy}*</label>
+                    <div className="space-y-2">
+                      <select
+                        id="confirmedBy"
+                        value={confirmedBy}
+                        onChange={e => {
+                          setConfirmedBy(e.target.value);
+                          if (e.target.value !== 'Other') {
+                            setCustomConfirmedBy('');
+                          }
+                        }}
+                        className={inputClasses}
+                        required={status === 'confirmed'}
                       >
-                        <Send size={14} />
-                        {t.confirm}
-                      </button>
-                    )}
+                        <option value="">Select staff member...</option>
+                        {STAFF_MEMBERS.map(member => (
+                          <option key={member} value={member}>{member}</option>
+                        ))}
+                        <option value="Other">Other</option>
+                      </select>
+                      
+                      {confirmedBy === 'Other' && (
+                        <input
+                          type="text"
+                          value={customConfirmedBy}
+                          onChange={e => setCustomConfirmedBy(e.target.value)}
+                          placeholder={t.confirmedByPlaceholder}
+                          className={inputClasses}
+                          required={status === 'confirmed'}
+                          autoFocus
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="confirmationMessage" className={labelClasses}>{t.confirmationMessage}</label>
+                    <textarea
+                      id="confirmationMessage"
+                      value={confirmationMessage}
+                      onChange={e => setConfirmationMessage(e.target.value)}
+                      rows={2}
+                      placeholder={t.confirmationMessagePlaceholder}
+                      className={inputClasses}
+                      readOnly={status === 'confirmed'}
+                    />
                   </div>
                 </div>
               )}
-              {reservation && (
-                <div>
-                  <label htmlFor="confirmedBy" className={labelClasses}>{t.confirmedBy}*</label>
-                  <input
-                    type="text"
-                    id="confirmedBy"
-                    value={confirmedBy}
-                    onChange={e => setConfirmedBy(e.target.value)}
-                    placeholder={t.confirmedByPlaceholder}
-                    className={inputClasses}
-                    required={status === 'confirmed'}
-                  />
-                </div>
-              )}
-              {reservation && (
-                <div>
-                  <label htmlFor="confirmationMessage" className={labelClasses}>{t.confirmationMessage}</label>
-                  <textarea
-                    id="confirmationMessage"
-                    value={confirmationMessage}
-                    onChange={e => setConfirmationMessage(e.target.value)}
-                    rows={2}
-                    placeholder={t.confirmationMessagePlaceholder}
-                    className={inputClasses}
-                    readOnly={status === 'confirmed'}
-                  />
-                </div>
-              )}
+              
               <div>
                   <label htmlFor="date" className={labelClasses}>{t.date}*</label>
                   <input 
@@ -475,7 +518,8 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ isOpen, onClose, re
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

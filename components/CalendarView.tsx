@@ -94,12 +94,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateChange 
 
       let buttonClasses = "w-11 h-11 flex items-center justify-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-accent)] relative transform";
       
-      if (isPast) {
-        buttonClasses += " text-gray-400 cursor-not-allowed";
-      } else if (isSelected) {
+      if (isSelected) {
         buttonClasses += " btn-gradient text-vanilla font-bold shadow-lg scale-110";
       } else if (isToday) {
         buttonClasses += " bg-black/5 text-[var(--color-primary)] hover:bg-black/10";
+      } else if (isPast) {
+        buttonClasses += " text-gray-400 hover:bg-black/5";
       } else {
         buttonClasses += " hover:bg-black/5 hover:scale-110";
       }
@@ -107,8 +107,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateChange 
       return (
         <div key={day} className="flex justify-center items-center p-1">
           <button
-            onClick={() => !isPast && onDateChange(currentDate)}
-            disabled={isPast}
+            onClick={() => onDateChange(currentDate)}
             className={buttonClasses}
           >
             {day}

@@ -7,7 +7,7 @@ interface PinLockScreenProps {
   onSuccess: () => void;
 }
 
-const CORRECT_PIN = '0409';
+const CORRECT_PINS = ['0409', '1723'];
 
 const PinLockScreen: React.FC<PinLockScreenProps> = ({ onSuccess }) => {
   const [pin, setPin] = useState('');
@@ -16,7 +16,7 @@ const PinLockScreen: React.FC<PinLockScreenProps> = ({ onSuccess }) => {
 
   useEffect(() => {
     if (pin.length === 4) {
-      if (pin === CORRECT_PIN) {
+      if (CORRECT_PINS.includes(pin)) {
         onSuccess();
       } else {
         setIsError(true);
