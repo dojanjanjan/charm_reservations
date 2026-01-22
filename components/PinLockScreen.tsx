@@ -7,7 +7,7 @@ interface PinLockScreenProps {
   onSuccess: () => void;
 }
 
-const CORRECT_PINS = ['0409', '1723'];
+const CORRECT_PINS = ['0409', '0410', '1723'];
 
 const PinLockScreen: React.FC<PinLockScreenProps> = ({ onSuccess }) => {
   const [pin, setPin] = useState('');
