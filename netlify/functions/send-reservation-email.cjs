@@ -60,7 +60,6 @@ function buildEmail({ type, reservation, language }) {
       line1Updated: 'Your reservation at Charm Thai has been updated.',
       details: 'Details',
       pax: 'Guests',
-      confirmedBy: 'Confirmed by',
       message: 'Message',
       comments: 'Notes',
       footer: 'If you have questions, please reply to this email.'
@@ -73,7 +72,6 @@ function buildEmail({ type, reservation, language }) {
       line1Updated: 'Ihre Reservierung im Charm Thai wurde aktualisiert.',
       details: 'Details',
       pax: 'Personen',
-      confirmedBy: 'Bestätigt von',
       message: 'Nachricht',
       comments: 'Anmerkungen',
       footer: 'Wenn Sie Fragen haben, antworten Sie bitte auf diese E-Mail.'
@@ -86,7 +84,6 @@ function buildEmail({ type, reservation, language }) {
       line1Updated: 'การจองของคุณที่ร้าน Charm Thai ได้รับการอัปเดตแล้ว',
       details: 'รายละเอียด',
       pax: 'จำนวนคน',
-      confirmedBy: 'ผู้ยืนยันการจอง',
       message: 'ข้อความ',
       comments: 'หมายเหตุ',
       footer: 'หากมีคำถาม กรุณาตอบกลับอีเมลนี้'
@@ -110,7 +107,6 @@ function buildEmail({ type, reservation, language }) {
       <div style="font-weight:700;margin-bottom:8px;">${safe(copy.details)}</div>
       <div><b>${safe(dateLabel)}</b> – ${safe(timeLabel)}</div>
       <div>${safe(copy.pax)}: <b>${safe(paxLabel)}</b></div>
-      ${confirmedBy ? `<div>${safe(copy.confirmedBy)}: <b>${safe(confirmedBy)}</b></div>` : ''}
       ${type === 'confirmed' && confirmationMessage ? `<div style="margin-top:8px;"><span style="color:#374151;">${safe(copy.message)}:</span><br/>${safe(confirmationMessage)}</div>` : ''}
       ${reservation.comments ? `<div style="margin-top:8px;"><span style="color:#374151;">${safe(copy.comments)}:</span><br/>${safe(reservation.comments)}</div>` : ''}
     </div>
@@ -126,7 +122,6 @@ function buildEmail({ type, reservation, language }) {
     '',
     `${dateLabel} - ${timeLabel}`,
     `${copy.pax}: ${paxLabel}`,
-    confirmedBy ? `${copy.confirmedBy}: ${confirmedBy}` : '',
     type === 'confirmed' && confirmationMessage ? `${copy.message}: ${confirmationMessage}` : '',
     reservation.comments ? `${copy.comments}: ${reservation.comments}` : '',
     '',
